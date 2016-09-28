@@ -243,7 +243,14 @@ protected
     else
       "permitted_attributes"
     end
-    params.require(param_key).permit(*policy.public_send(method_name))
+
+    if policy.respond_to?("custom_parameter_wrapper")
+      allowed_attributes = *policy.public_send(method_name)
+
+      policy.public_send("custom_parameter_wrapper", params, allowed_attributes)
+    else
+      params.require(param_key).permit(*policy.public_send(method_name))
+    end
   end
 
   # Cache of policies. You should not rely on this method.
